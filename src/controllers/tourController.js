@@ -1,6 +1,6 @@
 import recipeModel from "../models/tourModel.js";
 import commonModel from "../models/commonModel.js";
-import RecipeServices from "../repository/RecipeServices.js";
+import RecipeServices from "../repository/TourServices.js";
 import commonServices from "../repository/commonServices.js";
 
 class RecipeController {
