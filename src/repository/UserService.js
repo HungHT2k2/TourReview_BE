@@ -131,32 +131,7 @@ class RecipeController {
                     }
                 };
             }
-            blockUser = async (req, res, next) => {
-                const { id } = req.params;
-                try {
-        
-                    const userUpdate = await userModel.findById(id).exec();
-                    if (!userUpdate) {
-                        return {
-                            data: {
-                                statusCode: 400,
-                                success: false,
-                                error: "User not found"
-                            }
-                        };
-                    }
-                    await userModel.findOneAndUpdate({ _id: id }, { status: "locked" });
-                    await recipeModel.updateMany({ owner: id }, { status: "inactive" })
-                    return {
-                        data: {
-                            statusCode: 200,
-                            success: true,
-                        }
-                    };
-                } catch (err) {
-                    return err;
-                }
-            }
+
             const userModelFind = await userModel.create(req.body)
             const { token, refreshToken } = generateAccessToken({ _id: userModelFind['_id'], role: userModelFind["role"] }, 2);
 
