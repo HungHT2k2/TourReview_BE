@@ -6,19 +6,19 @@ import User from '../src/models/userModel.js'
 config();
 // import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from process.env;
 
-function generateAccessToken(username, check) {
-  // tạo access token key = header + payload + secretkey
-  const token = jwt.sign(username, process.env.ACCESS_KEY, { expiresIn: '100 days' });
-  if (check != 2) {
-    return token;
-  }
-  const refreshToken = jwt.sign(username, process.env.REFRESH_KEY,
-    { expiresIn: '200 days' }
-  );
+// function generateAccessToken(username, check) {
+//   // tạo access token key = header + payload + secretkey
+//   const token = jwt.sign(username, process.env.ACCESS_KEY, { expiresIn: '100 days' });
+//   if (check != 2) {
+//     return token;
+//   }
+//   const refreshToken = jwt.sign(username, process.env.REFRESH_KEY,
+//     { expiresIn: '200 days' }
+//   );
 
-  return { token: token, refreshToken: refreshToken };
-  // return jwt.sign(username, process.env.ACCESS_KEY, { expiresIn: '100 days' });
-};
+//   return { token: token, refreshToken: refreshToken };
+//   // return jwt.sign(username, process.env.ACCESS_KEY, { expiresIn: '100 days' });
+// };
 
 function authenticateToken(req, res, next) {
   console.log("day là req");
