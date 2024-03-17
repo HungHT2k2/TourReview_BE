@@ -1,4 +1,4 @@
-import recipeModel from "../models/tourModel.js";
+import recipeModel from "../models/recipeModel.js";
 import commonModel from "../models/commonModel.js";
 class commonServices {
     getAllCommon = async (req, res, next) => {

@@ -1,7 +1,7 @@
 import UserService from '../repository/UserService.js'
 import userModel from '../models/userModel.js'
 import User from '../models/userModel.js';
-import Recipe from '../models/tourModel.js';
+import Recipe from '../models/recipeModel.js';
 import { response } from 'express';
 import { generateAccessToken } from '../authen.js';
 import nodemailer from 'nodemailer';

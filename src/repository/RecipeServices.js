@@ -1,4 +1,4 @@
-import recipeModel from "../models/tourModel.js";
+import recipeModel from "../models/recipeModel.js";
 import userModel from "../models/userModel.js";
 class RecipeServices {
     getAllRecipe = async (req, res, next) => {

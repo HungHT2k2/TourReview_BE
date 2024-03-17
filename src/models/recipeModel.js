@@ -8,7 +8,7 @@ const recipeModel = new mongoose.Schema({
     introduction: {
         type: String,
     },
-    tour: {
+    recipes: {
         type: String,
         required: true
     },
