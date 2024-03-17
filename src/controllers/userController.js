@@ -25,6 +25,7 @@ class UserController {
     forgotPassword = async (req, res, next) => {
         const { email } = req.body;
         console.log("change password", req.body);
+        console.log("ss");
         try {
             const user = await User.findOne({ email: email });
             console.log(user);
@@ -35,24 +36,26 @@ class UserController {
             var transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                    user: 'suttoantruot13.11.2002@gmail.com',
-                    pass: 'hhif qdwn nnyi jbzb'
+                    user: 'anhpthe161502@fpt.edu.vn',
+                    pass: 'lncu wezr xpah qzdu'
                 },
                 tls: {
                     rejectUnauthorized: false
                 }
             });
+            console.log(token);
 
             var mailOptions = {
-                from: 'khanhddq13.11.2002@gmail.com',
+                from: 'anhpthe161502@fpt.edu.vn',
                 to: email,
                 subject: 'Reset Your password',
-
                 html: `<h1>You click link below to change password</h1><a href="http://localhost:3000/change-password/${user['_id']}/${token}">Reset Password</a>`
 
             };
 
             transporter.sendMail(mailOptions, function (error, info) {
+                console.log(info);
+                console.log(error);
                 if (error) {
                     // console.log("day là lỗi");
                     //   console.log(error);
