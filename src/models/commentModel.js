@@ -13,9 +13,9 @@ const commentModel = new mongoose.Schema({
         type:String,
         required:true
     },
-    recipeId:{
+    tourId:{
         type:mongoose.Types.ObjectId,
-        ref:"recipes"
+        ref:"tours"
     },
     replies:{
         type:[

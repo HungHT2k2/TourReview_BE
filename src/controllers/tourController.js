@@ -1,60 +1,60 @@
-import recipeModel from "../models/recipeModel.js";
+import tourModel from "../models/tourModel.js";
 import commonModel from "../models/commonModel.js";
-import RecipeServices from "../repository/RecipeServices.js";
+import TourServices from "../repository/TourServices.js";
 import commonServices from "../repository/commonServices.js";
 
-class RecipeController {
-    getAllrecipe = async (req, res, next) => {
-        const allRecipe = await RecipeServices.getAllRecipe(req, res, next)
+class TourController {
+    getAlltour = async (req, res, next) => {
+        const allTour = await TourServices.getAllTour(req, res, next)
         return res.send({
             status: 200,
-            allRecipe
+            allTour
         })
     }
 
-    getrecipeByID = async (req, res, next) => {
-        const recipe = await RecipeServices.findByID(req, res, next);
+    gettourByID = async (req, res, next) => {
+        const tour = await TourServices.findByID(req, res, next);
         return res.send({
             status: 200,
-            recipe
+            tour
         })
     }
 
 
 
 
-    getRecipeByOwner = async (req, res, next) => {
-        const recipe = await RecipeServices.findByOwner(req, res, next);
+    getTourByOwner = async (req, res, next) => {
+        const tour = await TourServices.findByOwner(req, res, next);
         return res.send({
             status: 200,
-            recipe
+            tour
         })
     }
 
-    createRecipe = async (req, res, next) => {
-        const newRecipe = await RecipeServices.Create(req, res, next);
-        if (!newRecipe) {
+    createTour = async (req, res, next) => {
+        const newTour = await TourServices.Create(req, res, next);
+        if (!newTour) {
             return res.status(400).send({
-                status: "failed to create recipe",
+                status: "failed to create tour",
             })
         }
         return res.status(200).send({
-            data: newRecipe
+            data: newTour
         });
     }
 
     updateByID = async (req, res, next) => {
 
         try {
-            const recipeUpdate = await RecipeServices.Update(req, res, next);
-            if (!recipeUpdate) {
+            const tourUpdate = await TourServices.Update(req, res, next);
+            if (!tourUpdate) {
                 return res.send({
-                    status: "failed to Update recipe",
+                    status: "failed to Update tour",
                 })
             }
-            if (recipeUpdate.data.statusCode !== 201) {
+            if (tourUpdate.data.statusCode !== 201) {
                 return res.status(200).send({
-                    data: recipeUpdate
+                    data: tourUpdate
                 });
             }
             return res.status(201).send({
@@ -69,15 +69,15 @@ class RecipeController {
     deleteByID = async (req, res, next) => {
 
         try {
-            const recipeUpdate = await RecipeServices.Delete(req, res, next);
-            if (!recipeUpdate) {
+            const tourUpdate = await TourServices.Delete(req, res, next);
+            if (!tourUpdate) {
                 return res.send({
-                    status: "failed to delete recipe",
+                    status: "failed to delete tour",
                 })
             }
-            if (recipeUpdate.data.statusCode !== 201) {
+            if (tourUpdate.data.statusCode !== 201) {
                 return res.status(200).send({
-                    data: recipeUpdate
+                    data: tourUpdate
                 });
             }
             return res.status(201).send({
@@ -91,7 +91,7 @@ class RecipeController {
 
     getAllCountry = async (req, res) => {
         try {
-            const tags = await recipeModel.find().select('tags');
+            const tags = await tourModel.find().select('tags');
             let countries = [];
             tags.forEach(item => {
                 item.tags.forEach(infor => {
@@ -158,16 +158,16 @@ class RecipeController {
           $and: [condition, typeCondition, countryCondition],
         };
     
-        const recipes = await RecipeServices.search(combinedConditions);
+        const tours = await TourServices.search(combinedConditions);
     
-        res.json(recipes);
+        res.json(tours);
       };
       getFavorite = async (req, res) => {
         try {
-          const recipeFavorite = await RecipeServices.getFavorite(req, res)
-          const size = await recipeModel.find({});
+          const tourFavorite = await TourServices.getFavorite(req, res)
+          const size = await tourModel.find({});
           return res.status(200).json({
-            data: recipeFavorite,
+            data: tourFavorite,
             
             size: size.length,
             success: true,
@@ -178,10 +178,10 @@ class RecipeController {
       };
       getNew = async (req, res) => {
         try {
-          const recipeNew = await RecipeServices.getNew(req, res);
-          const size = await recipeModel.find({}).populate("owner");
+          const tourNew = await TourServices.getNew(req, res);
+          const size = await tourModel.find({}).populate("owner");
           return res.status(200).json({
-            data: recipeNew,
+            data: tourNew,
             size: size.length,
             success: true,
           });
@@ -192,4 +192,4 @@ class RecipeController {
 
 }
 
-export default new RecipeController;
+export default new TourController;

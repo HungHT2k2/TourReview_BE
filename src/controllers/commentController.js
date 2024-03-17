@@ -3,13 +3,13 @@ import { io } from "../index.js";
 class CommentController {
   async createComment(req, res) {
     try {
-      const { content, recipeId, parentId } = req.body;
+      const { content, tourId, parentId } = req.body;
       const userId = req.user._id;
 
       const newComment = new commentModel({
         owner: userId,
         content,
-        recipeId,
+        tourId,
       });
 
       const savedComment = await newComment.save();
@@ -31,12 +31,12 @@ class CommentController {
     }
   }
 
-  async getCommentsForRecipe(req, res) {
+  async getCommentsForTour(req, res) {
     try {
-      const { recipeId } = req.params;
+      const { tourId } = req.params;
 
       const comments = await commentModel
-        .find({ recipeId })
+        .find({ tourId })
         .populate("replies");
 
       return res.status(200).json({
