@@ -15,8 +15,8 @@ const userModel = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum:['admin','user','chief'],
-        default:'user'
+        enum: ['admin', 'user', 'reviewer'],
+        default: 'user'
     },
     google_id: {
         type: Number
@@ -25,22 +25,22 @@ const userModel = new mongoose.Schema({
         type: Number
     },
     provider: {
-        type:String
+        type: String
     },
-    ownerRecipes: {
+    ownerTours: {
         type: [
             {
                 type: mongoose.Types.ObjectId,
-                ref: "recipes"
+                ref: "tours"
             },
         ],
         default: []
     },
-    favoriteRecipes: {
+    favoriteTours: {
         type: [
             {
                 type: mongoose.Types.ObjectId,
-                ref: "recipes"
+                ref: "tours"
             },
         ],
         default: []
@@ -54,7 +54,7 @@ const userModel = new mongoose.Schema({
         ],
         default: []
     },
-    followers:{
+    followers: {
         type: [
             {
                 type: mongoose.Types.ObjectId,
@@ -74,8 +74,8 @@ const userModel = new mongoose.Schema({
     },
     tags: {
         type: [{
-            k:String,
-            v:String
+            k: String,
+            v: String
         }],
         default: []
     }

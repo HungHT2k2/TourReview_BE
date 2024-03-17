@@ -1,5 +1,5 @@
 import User from '../models/userModel.js';
-import Recipe from '../models/recipeModel.js';
+import Tour from '../models/tourModel.js';
 import moment from 'moment';
 
 class AdminController {
@@ -27,18 +27,18 @@ class AdminController {
         }
     }
 
-    async getRecipes(req, res) {
+    async getTours(req, res) {
         try {
             const page = req.query.page || 1;
             const limit = req.query.limit || 10;
             const search = req.query.search || "";
             const sort = req.query.sort || '-createdAt';
-            const recipes = await Recipe.find({
+            const tours = await Tour.find({
                 $or: [
                     { name: { $regex: search } }
                 ]
             }).populate("owner").sort(sort).skip((page - 1) * limit).limit(limit);
-            return res.status(200).json({ recipes: recipes });
+            return res.status(200).json({ tours: tours });
         }
         catch (err) {
             return res.status(500).json({ message: err.toString() });
@@ -48,24 +48,24 @@ class AdminController {
     async dashboardDetail(req, res) {
         try {
             const totalUser = await User.countDocuments();
-            const totalRecipe = await Recipe.countDocuments();
-            const totalChief = await User.countDocuments({ role: "chief" });
+            const totalTour = await Tour.countDocuments();
+            const totalReviewer = await User.countDocuments({ role: "reviewer" });
 
             const newUser = await User.find();
-            const newRecipe = await Recipe.find().sort({ createdAt: -1 }).limit(5);
+            const newTour = await Tour.find().sort({ createdAt: -1 }).limit(5);
 
             const currentMonthStart = moment().startOf('month');
             const currentMonthEnd = moment().endOf('month');
             const daysInMonth = moment().daysInMonth();
 
             const newUserCounts = Array.from({ length: daysInMonth }, () => 0);
-            const newRecipeCounts = Array.from({ length: daysInMonth }, () => 0);
+            const newTourCounts = Array.from({ length: daysInMonth }, () => 0);
 
             const newUsers = await User.find({
                 createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd }
             });
 
-            const newRecipes = await Recipe.find({
+            const newTours = await Tour.find({
                 createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd }
             });
 
@@ -74,35 +74,35 @@ class AdminController {
                 newUserCounts[day - 1]++;
             });
 
-            newRecipes.forEach(recipe => {
-                const day = moment(recipe.createdAt).date();
-                newRecipeCounts[day - 1]++;
+            newTours.forEach(tour => {
+                const day = moment(tour.createdAt).date();
+                newTourCounts[day - 1]++;
             });
 
             return res.status(200).json({
                 totalUser,
-                totalRecipe,
-                totalChief,
+                totalTour,
+                totalReviewer,
                 newUser,
-                newRecipe,
+                newTour,
                 newUserCounts,
-                newRecipeCounts
+                newTourCounts
             });
         } catch (err) {
             return res.status(500).json({ message: err.toString() });
         }
     }
 
-    async updateRecipeStatus(req,res){
+    async updateTourStatus(req,res){
         try {
             const {id} = req.params;
-            const recipe = await Recipe.findById(id);
-            if(recipe){
+            const tour = await Tour.findById(id);
+            if(tour){
                 let newStatus = 'active';
-                if(recipe.status === 'active'){
+                if(tour.status === 'active'){
                     newStatus = 'inactive';
                 }
-                await Recipe.findByIdAndUpdate(id,{
+                await Tour.findByIdAndUpdate(id,{
                     status:newStatus
                 })
             }

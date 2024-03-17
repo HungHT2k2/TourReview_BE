@@ -1,10 +1,10 @@
-import recipeModel from "../models/recipeModel.js";
+import tourModel from "../models/tourModel.js";
 import userModel from "../models/userModel.js";
-class RecipeServices {
-    getAllRecipe = async (req, res, next) => {
+class TourServices {
+    getAllTour = async (req, res, next) => {
         try {
-            const allRecipe = await recipeModel.find({});
-            return allRecipe;
+            const allTour = await tourModel.find({});
+            return allTour;
         } catch (err) {
             return err;
         }
@@ -14,8 +14,8 @@ class RecipeServices {
         findByOwner = async (req, res, next) => {
             const userId = req.user._id;
             try {
-                const recipe = await recipeModel.find({ owner: userId });
-                return recipe;
+                const tour = await tourModel.find({ owner: userId });
+                return tour;
             } catch (err) {
                 return err;
             }
@@ -28,8 +28,8 @@ class RecipeServices {
             return next();
         }
         try {
-            const recipe = await recipeModel.findById(id).populate("owner")
-            return recipe;
+            const tour = await tourModel.findById(id).populate("owner")
+            return tour;
         } catch (err) {
             return err;
         }
@@ -37,12 +37,12 @@ class RecipeServices {
 
     Create = async (req, res, next) => {
         try {
-            const { name, introduction, recipes, tags } = req.body
+            const { name, introduction, tours, tags } = req.body
             const userId = req.user._id;
-            const create = await recipeModel.create({ name, introduction, recipes, tags, owner: userId });
+            const create = await tourModel.create({ name, introduction, tours, tags, owner: userId });
             const updateUser = await userModel.findById(userId).then((user) => {
-                user.role ="chief";
-                user.ownerRecipes.push(create._id);
+                user.role ="reviewer";
+                user.ownerTours.push(create._id);
                 user.save();
             });
             return {
@@ -57,17 +57,17 @@ class RecipeServices {
     Update = async (req, res, next) => {
         const { id } = req.params;
         try {
-            const recipeUpdate = await recipeModel.findById(id).exec();
-            if (!recipeUpdate) {
+            const tourUpdate = await tourModel.findById(id).exec();
+            if (!tourUpdate) {
                 return {
                     data: {
                         statusCode: 400,
                         success: false,
-                        error: "Recipe not found"
+                        error: "Tour not found"
                     }
                 };
             }
-            const result = await recipeModel.findOneAndUpdate({ _id: id }, req.body);
+            const result = await tourModel.findOneAndUpdate({ _id: id }, req.body);
             return {
                 data: {
                     statusCode: 200,
@@ -83,26 +83,26 @@ class RecipeServices {
     Delete = async (req, res, next) => {
         const { id } = req.params;
         try {
-            const recipeUpdate = await recipeModel.findById(id).exec();
-            if (!recipeUpdate) {
+            const tourUpdate = await tourModel.findById(id).exec();
+            if (!tourUpdate) {
                 return {
                     data: {
                         statusCode: 400,
                         success: false,
-                        error: "Recipe not found"
+                        error: "Tour not found"
                     }
                 };
             }
             const userId = req.user._id;
             await userModel.findById(userId).then((user) => {
-                const result = user.ownerRecipes.filter((recipe) => JSON.stringify(recipe._id) !== JSON.stringify(id));
-                user.ownerRecipes = result;
-                if(user.ownerRecipes.length == 0) {
+                const result = user.ownerTours.filter((tour) => JSON.stringify(tour._id) !== JSON.stringify(id));
+                user.ownerTours = result;
+                if(user.ownerTours.length == 0) {
                     user.role = "user";
                 }
                 user.save();
             });
-            const result = await recipeModel.findOneAndDelete({ _id: id }, req.body);
+            const result = await tourModel.findOneAndDelete({ _id: id }, req.body);
             
             return {
                 data: {
@@ -116,13 +116,13 @@ class RecipeServices {
         }
     }
     search = async (condition) => {
-        const recipes = await recipeModel.find(condition);
-        return recipes;
+        const tours = await tourModel.find(condition);
+        return tours;
     }
     getFavorite = async (req, res, next) => {
         const { page = 1, limit = 10 } = req.query;
         
-        const recipes = await recipeModel.aggregate([
+        const tours = await tourModel.aggregate([
           {
             $addFields: {
               favorites_size: { $size: { $ifNull: ["$favorites", []] } },
@@ -141,11 +141,11 @@ class RecipeServices {
           { $limit: +limit },
           
         ]);
-        return recipes;
+        return tours;
       };
       getNew = async (req, res, next) => {
         const { page = 1, limit = 10 } = req.query;
-        const recipes = await recipeModel.aggregate([
+        const tours = await tourModel.aggregate([
           {
             $addFields: {
               favorites_size: { $size: { $ifNull: ["$favorites", []] } },
@@ -164,9 +164,9 @@ class RecipeServices {
           { $limit: +limit },
         
         ])
-        return recipes;
+        return tours;
       };
 
 }
 
-export default new RecipeServices
+export default new TourServices

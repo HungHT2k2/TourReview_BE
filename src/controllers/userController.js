@@ -1,7 +1,7 @@
 import UserService from '../repository/UserService.js'
 import userModel from '../models/userModel.js'
 import User from '../models/userModel.js';
-import Recipe from '../models/recipeModel.js';
+import Tour from '../models/tourModel.js';
 import { response } from 'express';
 import { generateAccessToken } from '../authen.js';
 import nodemailer from 'nodemailer';
@@ -189,9 +189,9 @@ class UserController {
             if (requestUser.role !== 'admin') {
                 excluded += " -role";
             }
-            const user = await User.findById(id).populate("ownerRecipes").populate("favoriteRecipes").populate({
+            const user = await User.findById(id).populate("ownerTours").populate("favoriteTours").populate({
                 path: "followings",
-                select: "_id name tags followers ownerRecipes"
+                select: "_id name tags followers ownerTours"
             }).select(excluded);
             return res.status(200).json({
                 user: {
@@ -235,7 +235,7 @@ class UserController {
         }
     }
 
-    async userChiefFollow(req, res) {
+    async userReviewerFollow(req, res) {
         try {
             const { id } = req.params;
             const user = await User.findById(req.user._id);
@@ -267,27 +267,27 @@ class UserController {
         }
     }
 
-    async userRecipeFollow(req, res) {
+    async userTourFollow(req, res) {
         try {
             const { id } = req.params;
             const user = await User.findById(req.user._id);
-            const recipe = await Recipe.findById(id);
-            if (!user || !recipe) {
-                return res.status(404).json({ message: "User or recipe not found" });
+            const tour = await Tour.findById(id);
+            if (!user || !tour) {
+                return res.status(404).json({ message: "User or tour not found" });
             }
-            const isAlreadyFollowing = user.favoriteRecipes.includes(id);
+            const isAlreadyFollowing = user.favoriteTours.includes(id);
             if (isAlreadyFollowing) {
                 await User.findByIdAndUpdate(req.user._id, {
-                    $pull: { favoriteRecipes: id }
+                    $pull: { favoriteTours: id }
                 });
-                await Recipe.findByIdAndUpdate(id, {
+                await Tour.findByIdAndUpdate(id, {
                     $pull: { favorites: req.user._id }
                 });
             } else {
                 await User.findByIdAndUpdate(req.user._id, {
-                    $addToSet: { favoriteRecipes: id }
+                    $addToSet: { favoriteTours: id }
                 });
-                await Recipe.findByIdAndUpdate(id, {
+                await Tour.findByIdAndUpdate(id, {
                     $addToSet: { favorites: req.user._id }
                 });
             }
@@ -298,11 +298,11 @@ class UserController {
             return res.status(500).json({ message: err.toString() });
         }
     }
-    getTopChief = async (req,res) => {
+    getTopReviewer = async (req,res) => {
         try {
-            const topChief= await UserService.getTopChief(req,req);
+            const topReviewer= await UserService.getTopReviewer(req,req);
             return res.status(200).send({
-                data: topChief,
+                data: topReviewer,
                 success:true
             });
 

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const recipeModel = new mongoose.Schema({
+const tourModel = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -8,7 +8,7 @@ const recipeModel = new mongoose.Schema({
     introduction: {
         type: String,
     },
-    recipes: {
+    tours: {
         type: String,
         required: true
     },
@@ -54,4 +54,4 @@ const recipeModel = new mongoose.Schema({
     timestamps: true
 })
 
-export default mongoose.model('recipes', recipeModel);
+export default mongoose.model('tours', tourModel);

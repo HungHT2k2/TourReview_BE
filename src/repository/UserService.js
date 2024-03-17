@@ -4,10 +4,10 @@ import { config } from "dotenv";
 import userModel from "../models/userModel.js";
 import { generateAccessToken, googleAuthen } from "../authen.js";
 import passport from 'passport'
-import recipeModel from "../models/recipeModel.js";
+import tourModel from "../models/tourModel.js";
 import cookieParser from "cookie-parser";
 
-class RecipeController {
+class TourController {
 
     findAll = async (req, res, next) => {
         try {
@@ -75,7 +75,7 @@ class RecipeController {
                 };
             }
             await userModel.findOneAndUpdate({ _id: id }, { status: "locked" });
-            await recipeModel.updateMany({ owner: id }, { status: "inactive" })
+            await tourModel.updateMany({ owner: id }, { status: "inactive" })
             return {
                 data: {
                     statusCode: 200,
@@ -101,7 +101,7 @@ class RecipeController {
                 };
             }
             await userModel.findOneAndUpdate({ _id: id }, { status: "opened" });
-            await recipeModel.updateMany({ owner: id }, { status: "opened" })
+            await tourModel.updateMany({ owner: id }, { status: "opened" })
             return {
                 data: {
                     statusCode: 200,
@@ -240,7 +240,7 @@ class RecipeController {
     getTopChief = async (req, res, next) => {
         try {
             const topChief = await userModel.aggregate([
-                { $match : { role: 'chief'} },
+                { $match : { role: 'reviewer'} },
                 { $addFields : { 
                     followers_size :{
                         $size :{
@@ -250,10 +250,10 @@ class RecipeController {
                         },
                         
                 },
-                recipe_size :{
+                tour_size :{
                     $size :{
                         $ifNull:[
-                            "$ownerRecipes",[]
+                            "$ownerTours",[]
                         ]
                     },
                     
@@ -272,4 +272,4 @@ class RecipeController {
 
 }
 
-export default new RecipeController;
+export default new TourController;
