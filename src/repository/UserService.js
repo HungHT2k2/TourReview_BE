@@ -4,7 +4,7 @@ import { config } from "dotenv";
 import userModel from "../models/userModel.js";
 import { generateAccessToken, googleAuthen } from "../authen.js";
 import passport from 'passport'
-import recipeModel from "../models/tourModel.js";
+import recipeModel from "../models/recipeModel.js";
 import cookieParser from "cookie-parser";
 
 class RecipeController {

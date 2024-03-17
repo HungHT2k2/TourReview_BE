@@ -1,5 +1,5 @@
 import User from '../models/userModel.js';
-import Recipe from '../models/tourModel.js';
+import Recipe from '../models/recipeModel.js';
 import moment from 'moment';
 
 class AdminController {
