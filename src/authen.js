@@ -97,7 +97,7 @@ const googleAuthen = new GoogleStrategy({
 const facebookAuthen = new FacebookStrategy({ // FacebookStrategy là strategy instance object đầu là options
   clientID: process.env.FACEBOOK_APP_ID,
   clientSecret: process.env.FACEBOOK_APP_SECRET,
-  callbackURL: 'http://localhost:5000/auth/facebook/callback',
+  callbackURL: 'http://localhost:9999/auth/facebook/callback',
   profileFields: ['id', 'displayName', 'email'], // Add 'email' to the profileFields
   state: true,
 },
