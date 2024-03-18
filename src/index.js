@@ -12,13 +12,18 @@ import { Server } from "socket.io";
 import http from "http";
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swagger.js';
+import Strategy from 'passport-google-oauth2'
 const { KEY_SESSION } = process.env;
+const OAuth2Strategy = Strategy.Strategy;
+import userGG from './models/userLogGG.js';
 const app = express();
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 const server = http.createServer(app);
+const clientid = "456366005687-8h5hia88l2cpbne7k9l9sdg1nomhe2ar.apps.googleusercontent.com"
+const clientsecret = "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"
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
@@ -38,89 +43,143 @@ app.use(
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-
 app.use(session({
-  secret: KEY_SESSION,
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    maxAge: 100 * 60 * 1000 // 10s
-  },
+  secret:"YOUR SECRET KEY",
+  resave:false,
+  saveUninitialized:true
 }))
-app.use(cookieParser())
 
+// setuppassport
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(googleAuthen);
-passport.use(facebookAuthen)
-passport.serializeUser((user, done) => {
-  done(null, user);
-});
+passport.use(
+  new OAuth2Strategy({
+      clientID:clientid,
+      clientSecret:clientsecret,
+      callbackURL:"/auth/google/callback",
+      scope:["profile","email"]
+  },
+  async(accessToken,refreshToken,profile,done)=>{
+      try {
+          let user = await userGG.findOne({googleId:profile.id});
 
-passport.deserializeUser((obj, done) => {
-  // console.log('deserial');
-  done(null, obj);
-});
+          if(!user){
+              user = new userGG({
+                  googleId:profile.id,
+                  displayName:profile.displayName,
+                  email:profile.emails[0].value,
+                  image:profile.photos[0].value
+              });
 
-app.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
+              await user.save();
+          }
 
-app.get('/user/register/google',
-  passport.authenticate('google', {
-    failureRedirect: (req, res, next) => {
-      return res.status(200).json({
-        success: false,
-        statusCode: 400,
-        data: "error",
-      })
-    }
-  }),
-  (req, res) => {
-    // Successful authentication, redirect home.
-    console.log("req =================================================");
-    console.log(req.user);
-    const userData = {
-      success: true,
-      statusCode: 200,
-      data: encodeURIComponent(JSON.stringify(req.user))
-    };
-    const queryString = (Object.keys(userData).map(key => `${key}=${userData[key]}`).join('&'));
-    res.redirect(`http://localhost:3000?${queryString}`);
+          return done(null,user)
+      } catch (error) {
+          return done(error,null)
+      }
   }
-);
+  )
+)
+
+passport.serializeUser((user,done)=>{
+  done(null,user);
+})
+
+passport.deserializeUser((user,done)=>{
+  done(null,user);
+});
+
+// initial google ouath login
+app.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]}));
+
+app.get("/auth/google/callback",passport.authenticate("google",{
+  successRedirect:"http://localhost:3000/",
+  failureRedirect:"http://localhost:3000/login"
+}))
+// app.use(session({
+//   secret: KEY_SESSION,
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: {
+//     maxAge: 100 * 60 * 1000 // 10s
+//   },
+// }))
+// app.use(cookieParser())
+
+// app.use(passport.initialize());
+// app.use(passport.session());
+
+// passport.use(googleAuthen);
+// passport.use(facebookAuthen)
+// passport.serializeUser((user, done) => {
+//   done(null, user);
+// });
+
+// passport.deserializeUser((obj, done) => {
+//   // console.log('deserial');
+//   done(null, obj);
+// });
+
+// app.get('/auth/google',
+//   passport.authenticate('google', { scope: ['profile', 'email'] })
+// );
+
+// app.get('/user/register/google',
+//   passport.authenticate('google', {
+//     failureRedirect: (req, res, next) => {
+//       return res.status(200).json({
+//         success: false,
+//         statusCode: 400,
+//         data: "error",
+//       })
+//     }
+//   }),
+//   (req, res) => {
+//     // Successful authentication, redirect home.
+//     console.log("req =================================================");
+//     console.log(req.user);
+//     const userData = {
+//       success: true,
+//       statusCode: 200,
+//       data: encodeURIComponent(JSON.stringify(req.user))
+//     };
+//     const queryString = (Object.keys(userData).map(key => `${key}=${userData[key]}`).join('&'));
+//     res.redirect(`http://localhost:3000?${queryString}`);
+//   }
+// );
 
 
-app.get('/login/facebook', (req, res, next) => { console.log(0); next() }, passport.authenticate('facebook'));
+// app.get('/login/facebook', (req, res, next) => { console.log(0); next() }, passport.authenticate('facebook'));
 
 
-app.get('/auth/facebook/callback', (req, res, next) => { console.log("callback"); next() },
-  passport.authenticate('facebook', {
-    failureRedirect: (req, res, next) => {
-      res.redirect('http://localhost:3000/')
-      return res.status(200).json({
-        success: false,
-        statusCode: 400,
-        data: "error",
-      })
-    }
-  }),
-  function (req, res) {
-    // Successful authentication, redirect home.
-    console.log("req =================================================");
-    console.log(req.user);
-    const userData = {
-      success: true,
-      statusCode: 200,
-      data: encodeURIComponent(JSON.stringify(req.user))
-    };
+// app.get('/auth/facebook/callback', (req, res, next) => { console.log("callback"); next() },
+//   passport.authenticate('facebook', {
+//     failureRedirect: (req, res, next) => {
+//       res.redirect('http://localhost:3000/')
+//       return res.status(200).json({
+//         success: false,
+//         statusCode: 400,
+//         data: "error",
+//       })
+//     }
+//   }),
+//   function (req, res) {
+//     // Successful authentication, redirect home.
+//     console.log("req =================================================");
+//     console.log(req.user);
+//     const userData = {
+//       success: true,
+//       statusCode: 200,
+//       data: encodeURIComponent(JSON.stringify(req.user))
+//     };
 
-    const queryString = (Object.keys(userData).map(key => `${key}=${userData[key]}`).join('&'));
-    res.redirect(`http://localhost:3000?${queryString}`);
-  });
+//     const queryString = (Object.keys(userData).map(key => `${key}=${userData[key]}`).join('&'));
+//     res.redirect(`http://localhost:3000?${queryString}`);
+//   });
 
-//==========
+// //==========
 
 
 connect(process.env.DATABASE_URL, {
@@ -136,5 +195,5 @@ const PORT = process.env.PORT || 5000;
 
 router(app);
 server.listen(PORT, () => {
-  console.log("Connected to post 5000");
+  console.log(`connect to port : ${PORT}`);
 })
