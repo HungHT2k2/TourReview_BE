@@ -237,9 +237,9 @@ class TourController {
             }
         }
     }
-    getTopChief = async (req, res, next) => {
+    getTopReviewer = async (req, res, next) => {
         try {
-            const topChief = await userModel.aggregate([
+            const topReviewer = await userModel.aggregate([
                 { $match : { role: 'reviewer'} },
                 { $addFields : { 
                     followers_size :{
@@ -261,7 +261,7 @@ class TourController {
                 { $sort: { followers_size : -1} },
                 { $limit : 9}
             ])
-            return topChief;
+            return topReviewer;
             
         } catch (error) {
             return err;
