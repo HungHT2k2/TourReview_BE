@@ -6,7 +6,7 @@ import { generateAccessToken, googleAuthen } from "../authen.js";
 import passport from 'passport'
 import tourModel from "../models/tourModel.js";
 import cookieParser from "cookie-parser";
-
+import bcrypt from 'bcrypt';
 class TourController {
 
     findAll = async (req, res, next) => {
@@ -116,7 +116,7 @@ class TourController {
 
     Create = async (req, res, next) => {
 
-        const { email } = req.body;
+        const { email, password, name } = req.body;
 
         try {
 
@@ -130,9 +130,16 @@ class TourController {
                         data: "Email is not the same the other user"
                     }
                 };
+            }   
+            const salt = await bcrypt.genSalt(10);
+            const hashed = await bcrypt.hash(password, salt);
+            const body = {
+                name : name,
+                email : email,
+                password : hashed,
+                role : "user"
             }
-
-            const userModelFind = await userModel.create(req.body)
+            const userModelFind = await userModel.create(body)
             const { token, refreshToken } = generateAccessToken({ _id: userModelFind['_id'], role: userModelFind["role"] }, 2);
 
             const cookieRefresh = await cookieParser.signedCookie(refreshToken, process.env.REFRESH_KEY)
@@ -158,8 +165,9 @@ class TourController {
     Login = async (req, res, next) => {
         // const check = { $or: [{ status: "pending" }, { status: "opened" }] };
         try {
-            const userModelFind = await userModel.findOne({ ...req.body }, { password: 0 }).exec();
-            if (!userModelFind) {
+            const userModelFind = await userModel.findOne({ email: req.body.email });
+            const comparePassword = await bcrypt.compare(req.body.password, userModelFind.password);
+            if (!comparePassword) {
                 
                 return {
                     data: {

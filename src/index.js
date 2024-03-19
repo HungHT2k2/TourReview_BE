@@ -94,7 +94,7 @@ passport.deserializeUser((user,done)=>{
 app.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]}));
 
 app.get("/auth/google/callback", passport.authenticate("google", {
-  failureRedirect: "http://localhost:3000/login"
+  failureRedirect: "http://localhost:3000/login" 
 }), function(req, res) {
   // Thực hiện các hành động bạn muốn sau khi xác thực thành công
   console.log("Authentication successful!");
