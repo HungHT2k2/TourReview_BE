@@ -17,6 +17,7 @@ const { KEY_SESSION } = process.env;
 const OAuth2Strategy = Strategy.Strategy;
 import userGG from './models/userLogGG.js';
 const app = express();
+import axios from 'axios';
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -71,10 +72,8 @@ passport.use(
                   email:profile.emails[0].value,
                   image:profile.photos[0].value
               });
-
               await user.save();
           }
-
           return done(null,user)
       } catch (error) {
           return done(error,null)
@@ -94,10 +93,41 @@ passport.deserializeUser((user,done)=>{
 // initial google ouath login
 app.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]}));
 
-app.get("/auth/google/callback",passport.authenticate("google",{
-  successRedirect:"http://localhost:3000/",
-  failureRedirect:"http://localhost:3000/login"
-}))
+app.get("/auth/google/callback", passport.authenticate("google", {
+  failureRedirect: "http://localhost:3000/login"
+}), function(req, res) {
+  // Thực hiện các hành động bạn muốn sau khi xác thực thành công
+  console.log("Authentication successful!");
+  console.log("Authenticated user:", req.user);
+  
+  // Gọi API khác sau khi xác thực thành công
+  const body = {
+    name: req.user.displayName,
+    email: req.user.email,
+    password:"skadnaksdnidewi3313912mkdskskdmksda",
+}
+  
+  axios.post('http://localhost:9999/user/register', body)
+  .then(function (response) {
+    console.log("API call successful!");
+    // Tiếp tục với chuyển hướng sau khi xác thực thành công và gọi API thành công
+    res.redirect("http://localhost:3000/");
+  })
+  .catch(function (error) {
+    console.error("API call failed:", error);
+    // Xử lý lỗi API nếu cần
+    // Sau đó, tiếp tục với chuyển hướng sau khi xác thực thành công, dù gọi API thất bại
+    res.redirect("http://localhost:3000/");
+  });
+});
+app.get("/login/sucess",async(req,res)=>{
+
+  if(req.user){
+      res.status(200).json({message:"user Login",user:req.user})
+  }else{
+      res.status(400).json({message:"Not Authorized"})
+  }
+})
 // app.use(session({
 //   secret: KEY_SESSION,
 //   resave: false,
