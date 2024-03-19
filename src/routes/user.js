@@ -8,6 +8,8 @@ import UserController from '../controllers/userController.js'
 userRouter.get('/top_reviewer', UserController.getTopReviewer);
 
 userRouter.get('/', UserController.getAll);
+userRouter.post('/find', UserController.findUserByEmail);
+
 userRouter.get('/:id', UserController.getUserID);
 userRouter.post('/forgot-password', UserController.forgotPassword);
 userRouter.post('/register', UserController.postUser);

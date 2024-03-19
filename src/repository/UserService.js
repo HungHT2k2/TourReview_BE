@@ -137,7 +137,7 @@ class TourController {
 
             const cookieRefresh = await cookieParser.signedCookie(refreshToken, process.env.REFRESH_KEY)
             res.cookie('refresh', cookieRefresh);
-            const cookieValue = req.cookies['refresh'];
+            // const cookieValue = req.cookies['refresh'];
 
             return {
                 data: {
@@ -160,6 +160,7 @@ class TourController {
         try {
             const userModelFind = await userModel.findOne({ ...req.body }, { password: 0 }).exec();
             if (!userModelFind) {
+                
                 return {
                     data: {
                         statusCode: 400,
@@ -190,7 +191,7 @@ class TourController {
             };
             const cookieRefresh = await cookieParser.signedCookie(refreshToken, process.env.REFRESH_KEY)
             res.cookie('refresh', cookieRefresh);
-            const cookieValue = req.cookies['refresh'];
+            // const cookieValue = req.cookies['refresh'];
             return result;
         } catch (err) {
             return err;

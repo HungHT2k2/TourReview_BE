@@ -22,6 +22,24 @@ class UserController {
         })
     }
 
+    findUserByEmail = async (req, res, next) => {
+      try {
+        const {email} = req.body;
+        const user = await User.findOne({ email: email })
+        console.log(user);
+        if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+            return res.send({
+            status: 200,
+            user
+        })      
+    } catch (error) {
+        // Xử lý bất kỳ lỗi nào trong quá trình tìm kiếm
+        console.error('Error finding user by email:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+    }
     forgotPassword = async (req, res, next) => {
         const { email } = req.body;
         console.log("change password", req.body);
@@ -170,6 +188,7 @@ class UserController {
 
     CreateToken = async (req, res, next) => {
         const user = await UserService.Login(req, res, next);
+        console.log(user);
         if (user.data.statusCode !== 200) {
             return res.status(200).send({
                 data: user.data
