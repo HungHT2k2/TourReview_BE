@@ -246,6 +246,38 @@ class TourController {
             }
         }
     }
+    getTopReviewer = async (req, res, next) => {
+        try {
+            const topReviewer = await userModel.aggregate([
+                { $match : { role: 'reviewer'} },
+                { $addFields : {
+                    followers_size :{
+                        $size :{
+                            $ifNull:[
+                                "$followers",[]
+                            ]
+                        },
+                       
+                },
+                tour_size :{
+                    $size :{
+                        $ifNull:[
+                            "$ownerTours",[]
+                        ]
+                    },
+                   
+                 }}},
+                { $sort: { followers_size : -1} },
+                { $limit : 9}
+            ])
+            return topReviewer;
+           
+        } catch (error) {
+            return err;
+        }
+       
+    }
+
     getTopChief = async (req, res, next) => {
         try {
             const topChief = await userModel.aggregate([
